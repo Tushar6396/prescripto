@@ -17,7 +17,7 @@ app.use(cors());
 
 //API endpoints
 app.use('/api/admin', adminRouter);
-// localhost:4000/api/admin
+// localhost:5000/api/admin
 
 app.get('/', (req, res) => {
   res.send('Hello from server');
