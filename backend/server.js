@@ -7,7 +7,7 @@ import adminRouter from './routes/adminRoute.js';
 
 dotenv.config();
 const app = express();
-const port = process.env.port || 4000;
+const port = process.env.PORT || 4000;
 connectDB();
 connectCloudinary();
 
