@@ -46,6 +46,15 @@ const addDoctor = async (req, res) => {
         .json({ success: false, message: 'Please enter a valid email' });
     }
 
+    // check for already existing doctor with the mail
+    const existingDoctor = await doctorModel.findOne({ email });
+    if (existingDoctor) {
+      return res.json({
+        success: false,
+        message: 'The doctor with this mail already exists',
+      });
+    }
+
     // validation for password
     if (password.length < 6) {
       return res.status(400).json({
@@ -81,12 +90,10 @@ const addDoctor = async (req, res) => {
 
     const newDoctor = new doctorModel(doctorData);
     await newDoctor.save();
-    res
-      .status(200)
-      .json({ success: true, message: 'Doctor added successfully' });
+    res.json({ success: true, message: 'Doctor added successfully' });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    res.json({
       success: false,
       message: `Internal server error: ${error.message}`,
     });
@@ -94,7 +101,6 @@ const addDoctor = async (req, res) => {
 };
 
 // API for the admin login
-
 const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
