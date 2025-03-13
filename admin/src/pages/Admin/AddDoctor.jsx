@@ -44,6 +44,14 @@ const AddDoctor = () => {
       );
       if (data.success) {
         toast.success(data.message);
+        setAbout('');
+        setAddress('');
+        setDegree('');
+        setDocImg(false);
+        setEmail('');
+        setName('');
+        setFees('');
+        setPassword('');
       } else {
         toast.error(data.message);
       }
