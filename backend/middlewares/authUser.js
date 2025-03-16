@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
 
-//  Admin authentication middleware
-//  This middleware will check if the user is an admin or not
-const authAdmin = (req, res, next) => {
+//  This middleware will convert the token from the user to the user id
+const authUser = (req, res, next) => {
   try {
     // Log the headers for debugging
     // console.log('Headers:', req.headers);
@@ -11,11 +10,11 @@ const authAdmin = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     // console.log('Authorization Header:', authHeader);
 
-    const adminToken = authHeader && authHeader.split(' ')[1]; // Format: "Bearer <token>"
-    // console.log('Extracted Token:', adminToken);
+    const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer <token>"
+    // console.log('Extracted Token:', token);
 
     // Check if the token is present
-    if (!adminToken) {
+    if (!token) {
       return res.status(401).json({
         success: false,
         message: 'Access denied! Login again.',
@@ -23,17 +22,12 @@ const authAdmin = (req, res, next) => {
     }
 
     // Verify the token
-    const decodedToken = jwt.verify(adminToken, process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     console.log('Decoded Token:', decodedToken);
 
-    // Check if the decoded token contains the admin email
-    if (decodedToken !== process.env.ADMIN_EMAIL) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized!',
-      });
-    }
-    // if the token is valid, then the user is an admin
+    req.body.userId = decodedToken.id;
+
+    // if the token is valid, move to the next
     next();
   } catch (error) {
     console.log(error);
@@ -44,4 +38,4 @@ const authAdmin = (req, res, next) => {
   }
 };
 
-export default authAdmin;
+export default authUser;
