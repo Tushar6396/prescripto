@@ -10,6 +10,10 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [gender, setGender] = useState('');
+  const [address, setAddress] = useState('');
+  const [dob, setDob] = useState('');
   const navigate = useNavigate();
 
   const onSubmitHandler = async (event) => {
@@ -20,6 +24,10 @@ const Login = () => {
           name,
           email,
           password,
+          phone,
+          address,
+          gender,
+          dob,
         });
         if (data.success) {
           localStorage.setItem('token', data.token);
@@ -100,6 +108,62 @@ const Login = () => {
             value={password}
           />
         </div>
+
+        {state === 'Sign Up' && (
+          <div className='w-full'>
+            <p>Phone Number</p>
+            <input
+              className='border border-zinc-300 rounded w-full p-2 mt-1'
+              type='text'
+              onChange={(e) => {
+                setPhone(e.target.value);
+              }}
+              value={phone}
+            />
+          </div>
+        )}
+
+        {state === 'Sign Up' && (
+          <div className='w-full'>
+            <p>Address</p>
+            <input
+              className='border border-zinc-300 rounded w-full p-2 mt-1'
+              type='text'
+              onChange={(e) => {
+                setAddress(e.target.value);
+              }}
+              value={address}
+            />
+          </div>
+        )}
+
+        {state === 'Sign Up' && (
+          <div className='w-full'>
+            <p>Gender</p>
+            <select
+              className='border border-zinc-300 rounded w-full p-2 mt-1'
+              onChange={(e) => setGender(e.target.value)}
+              value={gender}
+            >
+              <option value=''>Select Gender</option>
+              <option value='Male'>Male</option>
+              <option value='Female'>Female</option>
+            </select>
+          </div>
+        )}
+
+        {state === 'Sign Up' && (
+          <div className='w-full'>
+            <p>Date of Birth</p>
+            <input
+              className='border border-zinc-300 rounded w-full p-2 mt-1'
+              type='date'
+              onChange={(e) => setDob(e.target.value)}
+              value={dob}
+            />
+          </div>
+        )}
+
         <button
           type='submit'
           className='bg-primary text-white w-full py-2 rounded-md text-base'

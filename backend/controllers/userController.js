@@ -8,9 +8,9 @@ import { v2 as cloudinary } from 'cloudinary';
 
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone, address, dob, gender } = req.body;
 
-    if ((!name, !email, !password)) {
+    if (!name || !email || !password || !phone || !address || !dob || !gender) {
       return res.json({ success: false, message: 'Missing Details' });
     }
 
@@ -39,10 +39,21 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    if (phone.length > 10 || phone.length < 10) {
+      return res.json({
+        success: false,
+        message: 'Please enter a valid phone number',
+      });
+    }
+
     const userData = {
       name,
       email,
       password: hashedPassword,
+      phone,
+      address,
+      gender,
+      dob,
     };
 
     const newUser = new userModel(userData);
