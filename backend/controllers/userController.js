@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { v2 as cloudinary } from 'cloudinary';
 import doctorModel from '../models/doctorModel.js';
 import appointmentModel from '../models/appointmentModel.js';
+import razorpay from 'razorpay';
 
 // API to register user
 const registerUser = async (req, res) => {
@@ -247,6 +248,49 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
+// Check if environment variables are present
+// if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+//   throw new Error(
+//     'Razorpay key_id and key_secret are required in environment variables.'
+//   );
+// }
+
+// Initialize Razorpay instance
+const razorpayInstance = new razorpay({
+  key_id: 'rzp_test_i0UBiiNenoJzcw',
+  key_secret: 'dnZvxPP1uEpTsWWpo0aKoIv1',
+});
+
+// API to make the payment of appointment using razorpay
+const paymentRazorpay = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const appointmentData = await appointmentModel.findById(appointmentId);
+
+    if (!appointmentData || appointmentData.cancelled) {
+      return res.json({
+        success: false,
+        message: 'Appointment cancelled or not found',
+      });
+    }
+
+    // creating options for razorpay payments
+    const options = {
+      amount: appointmentData.amount * 100,
+      currency: process.env.CURRENCY,
+      receipt: appointmentId,
+    };
+
+    // Creation of the order
+    const order = await razorpayInstance.orders.create(options);
+
+    res.json({ success: true, order });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -255,4 +299,5 @@ export {
   bookAppointment,
   listAppointments,
   cancelAppointment,
+  paymentRazorpay,
 };
