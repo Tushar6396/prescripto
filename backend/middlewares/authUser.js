@@ -23,7 +23,6 @@ const authUser = (req, res, next) => {
 
     // Verify the token
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Decoded Token:', decodedToken);
 
     req.body.userId = decodedToken.id;
 
