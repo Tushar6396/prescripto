@@ -2,10 +2,12 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const MyAppointments = () => {
   const { backendUrl, token } = useContext(AppContext);
   const [appointments, setAppointments] = useState([]);
+  const navigate = useNavigate();
 
   const months = [
     'Jan',
@@ -64,6 +66,40 @@ const MyAppointments = () => {
     }
   };
 
+  const initPay = (order) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: order.currency,
+      name: 'Appointment Payment',
+      description: 'Appointment Payment',
+      order_id: order.id,
+      receipt: order.receipt,
+      handler: async (response) => {
+        console.log(response);
+        try {
+          const { data } = await axios.post(
+            `${backendUrl}/api/user/verifyRazorpay`,
+            response,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          if (data.success) {
+            getUserAppointments();
+            navigate('/my-appointments');
+            toast.success(data.message);
+          }
+        } catch (error) {
+          console.log(error);
+          toast.error(error.message);
+        }
+      },
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
   const appointmentRazorpay = async (appointmentId) => {
     try {
       const { data } = await axios.post(
@@ -74,7 +110,7 @@ const MyAppointments = () => {
         }
       );
       if (data.success) {
-        console.log(data.order);
+        initPay(data.order);
       } else {
         console.log(data.message);
       }
@@ -122,9 +158,13 @@ const MyAppointments = () => {
                 {item.slotDate} | {item.slotTime}
               </p>
             </div>
-            <div></div>
             <div className='flex flex-col gap-2 justify-end'>
-              {!item.cancelled && (
+              {!item.cancelled && item.payment && (
+                <button className='sm:min-w-48  py-2 border rounded text-stone-500 bg-indigo-100'>
+                  Paid
+                </button>
+              )}
+              {!item.cancelled && !item.payment && (
                 <button
                   onClick={() => appointmentRazorpay(item._id)}
                   className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300'
