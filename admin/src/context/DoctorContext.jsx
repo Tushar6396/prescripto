@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -8,6 +8,10 @@ const DoctorContextProvider = (props) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [appointments, setAppointments] = useState([]);
+
+  const [dashData, setDashData] = useState(false);
+
+  const [profileData, setProfileData] = useState(false);
 
   const [doctorToken, setDoctorToken] = useState(
     localStorage.getItem('doctorToken')
@@ -77,6 +81,40 @@ const DoctorContextProvider = (props) => {
     }
   };
 
+  const getDashData = async () => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/doctor/dashboard`, {
+        headers: { Authorization: `Bearer ${doctorToken}` },
+      });
+      if (data.success) {
+        setDashData(data.dashData);
+        console.log(data.dashData);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const getProfileData = async () => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/doctor/profile`, {
+        headers: { Authorization: `Bearer ${doctorToken}` },
+      });
+      if (data.success) {
+        setProfileData(data.profileData);
+        console.log(data.profileData);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
   const value = {
     backendUrl,
     doctorToken,
@@ -86,6 +124,12 @@ const DoctorContextProvider = (props) => {
     setAppointments,
     completeAppointment,
     cancelAppointment,
+    dashData,
+    setDashData,
+    getDashData,
+    profileData,
+    setProfileData,
+    getProfileData,
   };
 
   return (
